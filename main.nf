@@ -22,14 +22,13 @@ include { SRATOOLS_FASTQDUMP } from './modules/local/sratools_fastqdump'
 
 
 // Check if --input file is empty
-// ch_input = file(params.input, checkIfExists: true)
-// if (ch_input.isEmpty()) {exit 1, "File provided with --input is empty: ${ch_input.getName()}!"}
+ch_input = file(params.input, checkIfExists: true)
+if (ch_input.isEmpty()) {exit 1, "File provided with --input is empty: ${ch_input.getName()}!"}
 
 // Read in ids from --input file
 Channel
     .from(file(params.input, checkIfExists: true))
     .splitCsv(header:true, sep:'', strip:true)
-    // .map{meta -> [meta, meta.id]}
     .map{it.id}
     .set { ch_ids }
 
@@ -78,7 +77,7 @@ workflow {
     //
     // Convert the SRA format into one or more compressed FASTQ files.
     //
-    SRATOOLS_FASTQDUMP ( SRATOOLS_PREFETCH.out )
+    SRATOOLS_FASTQDUMP ( SRATOOLS_PREFETCH.out.sra )
     ch_versions = ch_versions.mix( SRATOOLS_FASTQDUMP.out.versions.first() )
 
 }
