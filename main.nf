@@ -1,28 +1,18 @@
 #!/usr/bin/env nextflow
 /*
-========================================================================================
-    luslab/scmultiomic
-========================================================================================
-*/
 
 nextflow.enable.dsl = 2
 
 /*
 ========================================================================================
-    GENOME PARAMETER VALUES
+    IMPORT LOCAL MODULES/SUBWORKFLOWS
 ========================================================================================
 */
 
-// if (!params.fasta) {
-//     params.chromap_index   = WorkflowMain.getGenomeAttribute(params, 'chromap')
-// } else {
-//     params.chromap_index   = null
-// }
-
-params.fasta     = WorkflowMain.getGenomeAttribute(params, 'fasta')
-params.gtf       = WorkflowMain.getGenomeAttribute(params, 'gtf')
-// params.gene_bed  = WorkflowMain.getGenomeAttribute(params, 'bed12')
-// params.blacklist = WorkflowMain.getGenomeAttribute(params, 'blacklist')
+include { SRA_IDS_TO_RUNINFO      } from './modules/local/sra_ids_to_runinfo'
+include { SRA_MERGE_SAMPLESHEET   } from './modules/local/sra_merge_samplesheet'
+include { SRATOOLS_PREFETCH    } from './modules/local/sratools_prefetch'
+include { SRATOOLS_FASTQDUMP } from './modules/local/sratools_fastqdump'
 
 /*
 ========================================================================================
@@ -30,40 +20,68 @@ params.gtf       = WorkflowMain.getGenomeAttribute(params, 'gtf')
 ========================================================================================
 */
 
-// WorkflowMain.initialise(workflow, params, log)
+
+// Check if --input file is empty
+// ch_input = file(params.input, checkIfExists: true)
+// if (ch_input.isEmpty()) {exit 1, "File provided with --input is empty: ${ch_input.getName()}!"}
+
+// Read in ids from --input file
+Channel
+    .from(file(params.input, checkIfExists: true))
+    .splitCsv(header:true, sep:'', strip:true)
+    // .map{meta -> [meta, meta.id]}
+    .map{it.id}
+    .set { ch_ids }
+
 
 /*
 ========================================================================================
-    NAMED WORKFLOW FOR PIPELINE
+    RUN MAIN WORKFLOW
 ========================================================================================
 */
-
-// include { CUSTOMSC } from './workflows/custom_sc'
-
-// workflow LUSLAB_CUSTOMSC {
-//     CUSTOMSC ()
-// }
-
-include { CELLRANGER_MULTIOMIC } from './workflows/cellranger_multiomic'
-
-workflow LUSLAB_CELLRANGER_MULTIOMIC {
-    CELLRANGER_MULTIOMIC ()
-}
-
-/*
-========================================================================================
-    RUN ALL WORKFLOWS
-========================================================================================
-*/
-
-// workflow {
-//     LUSLAB_CUSTOMSC ()
-// }
 
 workflow {
-    LUSLAB_CELLRANGER_MULTIOMIC ()
-}
 
+    ch_versions = Channel.empty()
+
+    // //
+    // // MODULE: Get SRA run information for public database ids
+    // //
+    SRA_IDS_TO_RUNINFO (
+        ch_ids,
+        params.ena_metadata_fields ?: ''
+    )
+    ch_versions = ch_versions.mix(SRA_IDS_TO_RUNINFO.out.versions.first())
+
+    //
+    // MODULE: Create a merged samplesheet across all samples for the pipeline
+    //
+    // SRA_IDS_TO_RUNINFO.out.tsv.collect.view()
+    SRA_MERGE_SAMPLESHEET (
+        SRA_IDS_TO_RUNINFO.out.tsv.collect()
+    )
+    ch_versions = ch_versions.mix(SRA_MERGE_SAMPLESHEET.out.versions)
+
+    SRA_MERGE_SAMPLESHEET
+        .out
+        .samplesheet
+        .splitCsv(header:true, sep:'\t')
+        .map { meta -> [meta, meta.run_accession]}
+        .set { ch_sra_reads }
+
+    //
+    // Prefetch sequencing reads in SRA format.
+    //
+    SRATOOLS_PREFETCH ( ch_sra_reads )
+    ch_versions = ch_versions.mix( SRATOOLS_PREFETCH.out.versions.first() )
+
+    // //
+    // // Convert the SRA format into one or more compressed FASTQ files.
+    // //
+    // SRATOOLS_FASTQDUMP ( SRATOOLS_PREFETCH.out )
+    // ch_versions = ch_versions.mix( SRATOOLS_FASTQDUMP.out.versions.first() )
+
+}
 
 /*
 ========================================================================================

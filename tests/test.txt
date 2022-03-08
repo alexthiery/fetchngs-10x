@@ -1,0 +1,2 @@
+sample_name,id
+HH7,SRX11662118
