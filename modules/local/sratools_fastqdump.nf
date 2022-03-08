@@ -23,7 +23,6 @@ process SRATOOLS_FASTQDUMP {
     """
     fastq-dump \\
         $args \\
-        --threads $task.cpus \\
         ${sra.name}
 
     pigz \\
