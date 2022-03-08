@@ -75,11 +75,11 @@ workflow {
     SRATOOLS_PREFETCH ( ch_sra_reads )
     ch_versions = ch_versions.mix( SRATOOLS_PREFETCH.out.versions.first() )
 
-    // //
-    // // Convert the SRA format into one or more compressed FASTQ files.
-    // //
-    // SRATOOLS_FASTQDUMP ( SRATOOLS_PREFETCH.out )
-    // ch_versions = ch_versions.mix( SRATOOLS_FASTQDUMP.out.versions.first() )
+    //
+    // Convert the SRA format into one or more compressed FASTQ files.
+    //
+    SRATOOLS_FASTQDUMP ( SRATOOLS_PREFETCH.out )
+    ch_versions = ch_versions.mix( SRATOOLS_FASTQDUMP.out.versions.first() )
 
 }
 
