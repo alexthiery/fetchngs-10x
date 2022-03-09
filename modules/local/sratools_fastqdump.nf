@@ -1,6 +1,6 @@
 
 process SRATOOLS_FASTQDUMP {
-    tag "$meta.id"
+    tag "$sra"
     label 'process_medium'
 
     conda (params.enable_conda ? 'bioconda::sra-tools=2.11.0 conda-forge::pigz=2.6' : null)
