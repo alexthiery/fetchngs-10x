@@ -13,29 +13,19 @@ process SRATOOLS_FASTQDUMP {
 
     output:
     tuple val(meta), path(fastq_output), emit: reads
-    tuple val(meta), path(md5_output)  , emit: md5
     path "versions.yml"                , emit: versions
 
     script:
     def args = task.ext.args  ?: ''
-    def args2 = task.ext.args2 ?: ''
 
     """
     fastq-dump \\
         $args \\
         ${sra.name}
 
-    pigz \\
-        $args2 \\
-        --no-name \\
-        --processes $task.cpus \\
-        *.fastq
-
-
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         sratools: \$(fastq-dump --version 2>&1 | grep -Eo '[0-9.]+')
-        pigz: \$( pigz --version 2>&1 | sed 's/pigz //g' )
     END_VERSIONS
     """
 }
