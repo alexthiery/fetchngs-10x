@@ -13,7 +13,7 @@ include { SRA_IDS_TO_RUNINFO      } from './modules/local/sra_ids_to_runinfo'
 include { SRA_MERGE_SAMPLESHEET   } from './modules/local/sra_merge_samplesheet'
 include { SRATOOLS_PREFETCH    } from './modules/local/sratools_prefetch'
 include { SRATOOLS_FASTQDUMP } from './modules/local/sratools_fastqdump'
-
+include { RENAME_FASTQ_10X } from './modules/local/rename_fastq_10x'
 
 /*
 ========================================================================================
@@ -88,6 +88,12 @@ workflow {
     //
     SRATOOLS_FASTQDUMP ( SRATOOLS_PREFETCH.out.sra )
     ch_versions = ch_versions.mix( SRATOOLS_FASTQDUMP.out.versions.first() )
+
+    //
+    // Convert the fastq file names to 10x format.
+    //
+    RENAME_FASTQ_10X ( SRATOOLS_FASTQDUMP.out.reads )
+    ch_versions = ch_versions.mix( RENAME_FASTQ_10X.out.versions.first() )
 
     //
     // MODULE: Dump software versions for all tools used in the workflow
