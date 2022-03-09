@@ -14,6 +14,15 @@ include { SRA_MERGE_SAMPLESHEET   } from './modules/local/sra_merge_samplesheet'
 include { SRATOOLS_PREFETCH    } from './modules/local/sratools_prefetch'
 include { SRATOOLS_FASTQDUMP } from './modules/local/sratools_fastqdump'
 
+
+/*
+========================================================================================
+    IMPORT NF-CORE MODULES/SUBWORKFLOWS
+========================================================================================
+*/
+
+include { CUSTOM_DUMPSOFTWAREVERSIONS } from './modules/nf-core/modules/custom/dumpsoftwareversions/main'
+
 /*
 ========================================================================================
     VALIDATE & PRINT PARAMETER SUMMARY
@@ -80,6 +89,12 @@ workflow {
     SRATOOLS_FASTQDUMP ( SRATOOLS_PREFETCH.out.sra )
     ch_versions = ch_versions.mix( SRATOOLS_FASTQDUMP.out.versions.first() )
 
+    //
+    // MODULE: Dump software versions for all tools used in the workflow
+    //
+    CUSTOM_DUMPSOFTWAREVERSIONS (
+        ch_versions.unique().collectFile(name: 'collated_versions.yml')
+    )
 }
 
 /*

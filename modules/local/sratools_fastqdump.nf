@@ -18,9 +18,11 @@ process SRATOOLS_FASTQDUMP {
     script:
     def args = task.ext.args  ?: ''
 
+    fastq_output = '*.fastq.gz'
     """
     fastq-dump \\
         $args \\
+        --gzip \\
         ${sra.name}
 
     cat <<-END_VERSIONS > versions.yml
