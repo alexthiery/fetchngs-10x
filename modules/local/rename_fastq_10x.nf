@@ -24,6 +24,7 @@ process RENAME_FASTQ_10X {
     """
     rename_fastq_10x.py \\
         --dir ./ \\
+        --sample_id $meta.sample_id \\
         --seq_run $seq_run \\
         $args
 
