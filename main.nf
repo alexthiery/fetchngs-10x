@@ -89,11 +89,20 @@ workflow {
     SRATOOLS_FASTQDUMP ( SRATOOLS_PREFETCH.out.sra )
     ch_versions = ch_versions.mix( SRATOOLS_FASTQDUMP.out.versions.first() )
 
+
+    SRATOOLS_FASTQDUMP
+        .out
+        .reads
+        .map{row -> [row[0].experiment_accession, row[0], row[1]]}
+        .groupTuple(by: 0)
+        .map{row -> [row[1], row[2]]}
+        .set{ ch_fastqs }
+
     //
     // Convert the fastq file names to 10x format.
     //
     if (params.rename_fastq){
-        RENAME_FASTQ_10X ( SRATOOLS_FASTQDUMP.out.reads )
+        RENAME_FASTQ_10X ( ch_fastqs )
         ch_versions = ch_versions.mix( RENAME_FASTQ_10X.out.versions.first() )
     }
 
