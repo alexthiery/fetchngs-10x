@@ -1,6 +1,6 @@
 
 process RENAME_FASTQ_10X {
-    tag "$id"
+    tag "$meta.run_accession"
     label 'error_retry'
 
     conda (params.enable_conda ? "conda-forge::python=3.9.5" : null)
