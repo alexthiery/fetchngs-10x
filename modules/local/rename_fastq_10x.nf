@@ -17,12 +17,14 @@ process RENAME_FASTQ_10X {
 
     script:
     def args = task.ext.args  ?: ''
+    def seq_run = meta.seq_run ?: 1 //numeric identifier for samples resequenced on separate flowcells
 
     fastq_output = '*.fastq.gz'
     
     """
     rename_fastq_10x.py \\
         --dir ./ \\
+        --seq_run $seq_run \\
         $args
 
     cat <<-END_VERSIONS > versions.yml

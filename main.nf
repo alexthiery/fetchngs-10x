@@ -92,8 +92,10 @@ workflow {
     //
     // Convert the fastq file names to 10x format.
     //
-    RENAME_FASTQ_10X ( SRATOOLS_FASTQDUMP.out.reads )
-    ch_versions = ch_versions.mix( RENAME_FASTQ_10X.out.versions.first() )
+    if (params.rename_fastq){
+        RENAME_FASTQ_10X ( SRATOOLS_FASTQDUMP.out.reads )
+        ch_versions = ch_versions.mix( RENAME_FASTQ_10X.out.versions.first() )
+    }
 
     //
     // MODULE: Dump software versions for all tools used in the workflow
