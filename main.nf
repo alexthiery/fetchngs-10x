@@ -38,7 +38,7 @@ if (ch_input.isEmpty()) {exit 1, "File provided with --input is empty: ${ch_inpu
 Channel
     .from(file(params.input, checkIfExists: true))
     .splitCsv(header:true, sep:'', strip:true)
-    .map{it.id}
+    .map{it.sra_id}
     .set { ch_ids }
 
 
