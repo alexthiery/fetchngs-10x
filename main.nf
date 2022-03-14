@@ -96,11 +96,9 @@ workflow {
         .map{row -> [[
             experiment_accession: row[0].experiment_accession,
             sample_title: row[0].sample_title
-            ],
-            row[1]
-            ]}
+            ], row[1]]}
         .groupTuple(by: 0)
-        .view()
+        .map{[it[0], it[1].flatten()]}
         .set{ ch_fastqs }
 
     //
