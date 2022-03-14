@@ -1,6 +1,6 @@
 
 process RENAME_FASTQ_10X {
-    tag "$meta.run_accession"
+    // tag "$meta.run_accession"
     label 'error_retry'
 
     conda (params.enable_conda ? "conda-forge::python=3.9.5" : null)
@@ -18,6 +18,8 @@ process RENAME_FASTQ_10X {
     script:
     def args = task.ext.args  ?: ''
     fastq_output = '*.fastq.gz'
+
+    println $meta
     
     """
     rename_fastq_10x.py \\
