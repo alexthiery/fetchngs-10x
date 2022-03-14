@@ -22,7 +22,7 @@ process RENAME_FASTQ_10X {
     """
     rename_fastq_10x.py \\
         --dir ./ \\
-        --sample_id $meta.sample_id \\
+        --sample_id $meta.experiment_accession \\
         $args
 
     cat <<-END_VERSIONS > versions.yml
