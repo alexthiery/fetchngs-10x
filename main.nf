@@ -93,10 +93,15 @@ workflow {
     SRATOOLS_FASTQDUMP
         .out
         .reads
-        .map{row -> [row[0].experiment_accession, row[0], row[1]]}
+        .map{row -> [[
+            experiment_accession: row[0].experiment_accession,
+            sample_title: row[0].sample_title
+            ],
+            row[1]
+            ]}
         .view()
         .groupTuple(by: 0)
-        .map{row -> [row[1], row[2]]}
+        // .map{row -> [row[1], row[2]]}
         .set{ ch_fastqs }
 
     //
