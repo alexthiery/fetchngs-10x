@@ -22,6 +22,10 @@ def parse_args(args=None):
 def rename_fastq(dir, args):
     files = os.listdir(dir)
     files = sorted(files)
+    
+    # Filter fastq files before loop
+    files = [file for file in files if file.endswith("fastq.gz")]
+
     sample = files[0].split("_", 1)[0]
     ticker = 1 #add ticker to append seq runs if there is more than 1 unique sample name per experiment (i.e. multiple SRR ids)
     for file in files:

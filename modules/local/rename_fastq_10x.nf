@@ -2,6 +2,7 @@
 process RENAME_FASTQ_10X {
     tag "$meta.experiment_accession"
     label 'error_retry'
+    label 'process_low'
 
     conda (params.enable_conda ? "conda-forge::python=3.9.5" : null)
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
