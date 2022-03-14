@@ -94,9 +94,9 @@ workflow {
         .out
         .reads
         .map{row -> [row[0].experiment_accession, row[0], row[1]]}
+        .view()
         .groupTuple(by: 0)
         .map{row -> [row[1], row[2]]}
-        .view()
         .set{ ch_fastqs }
 
     //
